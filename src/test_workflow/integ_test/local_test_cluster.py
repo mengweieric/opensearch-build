@@ -1,3 +1,4 @@
+# Copyright OpenSearch Contributors
 # SPDX-License-Identifier: Apache-2.0
 #
 # The OpenSearch Contributors require contributions made to
@@ -34,6 +35,7 @@ class LocalTestCluster(TestCluster):
         security_enabled: bool,
         component_test_config: str,
         test_recorder: TestRecorder,
+        cluster_port: int = 9200
     ) -> None:
         super().__init__(
             work_dir,
@@ -41,9 +43,11 @@ class LocalTestCluster(TestCluster):
             component_test_config,
             security_enabled,
             additional_cluster_config,
-            test_recorder.local_cluster_logs
+            test_recorder.local_cluster_logs,
+            cluster_port
         )
 
+        self.cluster_port = cluster_port
         self.manifest = bundle_manifest
         self.dependency_installer = dependency_installer
 
@@ -53,7 +57,8 @@ class LocalTestCluster(TestCluster):
             self.additional_cluster_config,
             self.security_enabled,
             self.dependency_installer,
-            self.work_dir
+            self.work_dir,
+            self.cluster_port
         )
 
     @property
@@ -66,4 +71,4 @@ class LocalTestCluster(TestCluster):
 
     @property
     def port(self) -> int:
-        return 9200
+        return self.cluster_port

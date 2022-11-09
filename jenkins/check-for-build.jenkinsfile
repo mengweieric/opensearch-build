@@ -1,4 +1,7 @@
-lib = library(identifier: "jenkins@20211123", retriever: legacySCM(scm))
+lib = library(identifier: 'jenkins@1.0.4', retriever: modernSCM([
+    $class: 'GitSCMSource',
+    remote: 'https://github.com/opensearch-project/opensearch-build-libraries.git',
+]))
 
 pipeline {
     options {
@@ -42,6 +45,11 @@ pipeline {
             description: 'Job to trigger if build has changed',
             trim: true
         )
+        string(
+            name: 'BUILD_PLATFORM',
+            description: 'Platform to build',
+            trim: true
+        )
     }
     stages {
         stage('detect docker image + args') {
@@ -83,7 +91,8 @@ pipeline {
                             }
                             build job: "${TARGET_JOB_NAME}", parameters: [
                             string(name: 'INPUT_MANIFEST', value: "${INPUT_MANIFEST}"),
-                            string(name: 'TEST_MANIFEST', value: "${TEST_MANIFEST}")
+                            string(name: 'TEST_MANIFEST', value: "${TEST_MANIFEST}"),
+                            string(name: 'BUILD_PLATFORM', value: "${BUILD_PLATFORM}")
                             ], wait: true
 
                             echo "Build succeeded, uploading build SHA for that job"

@@ -1,4 +1,7 @@
-lib = library(identifier: 'jenkins@20211123', retriever: legacySCM(scm))
+lib = library(identifier: 'jenkins@1.0.4', retriever: modernSCM([
+    $class: 'GitSCMSource',
+    remote: 'https://github.com/opensearch-project/opensearch-build-libraries.git',
+]))
 
 pipeline {
     agent {
@@ -39,7 +42,8 @@ pipeline {
                     signArtifacts(
                         artifactPath: "$WORKSPACE/artifacts/$ARTIFACT_PATH/opensearch/manifest.yml",
                         type: 'maven',
-                        platform: 'linux'
+                        platform: 'linux',
+                        sigtype: '.asc'
                     )
                 }
             }

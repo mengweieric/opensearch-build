@@ -1,3 +1,11 @@
+# Copyright OpenSearch Contributors
+# SPDX-License-Identifier: Apache-2.0
+#
+# The OpenSearch Contributors require contributions made to
+# this file be licensed under the Apache-2.0 license or a
+# compatible open source license.
+
+
 import os
 import unittest
 from pathlib import Path
@@ -91,9 +99,13 @@ class TestSignerPGP(unittest.TestCase):
     def test_signer_sign_asc(self, mock_repo: Mock) -> None:
         signer = SignerPGP()
         signer.sign("the-jar.jar", Path("/path/"), ".asc")
-        command = "./opensearch-signer-client -i " + os.path.join(Path("/path/"), 'the-jar.jar') + " -o " + os.path.join(Path("/path/"), 'the-jar.jar.asc') + " -p pgp"
+        command = "./opensearch-signer-client -i " + os.path.join(Path("/path/"), 'the-jar.jar') + " -o " + os.path.join(Path("/path/"), 'the-jar.jar.sig') + " -p pgp"
+        conversion_cmd = "gpg --enarmor < " + os.path.join(Path("/path/"), 'the-jar.jar.sig') + " > " +\
+                         os.path.join(Path("/path/"), 'the-jar.jar.asc') + " && sed -i 's/ARMORED FILE/SIGNATURE/g' " +\
+                         os.path.join(Path("/path/"), 'the-jar.jar.asc')
         mock_repo.assert_has_calls(
             [call().execute(command)])
+        mock_repo.assert_has_calls([call().execute(conversion_cmd)])
 
     @patch("sign_workflow.signer.GitRepository")
     def test_signer_sign_sig(self, mock_repo: Mock) -> None:
